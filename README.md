@@ -52,6 +52,17 @@ xpath.js is xml engine agnostic but I recommend to use [xmldom](https://github.c
 -->
     
     myns
+
+## Namespaces defined in queries
+`````javascript  
+var xml = "<book xmlns='default-namespace'><title>Harry Potter</title></book>";
+var doc = new dom().parseFromString(xml) 
+var title = select(doc, "/d:book/d:title", {"d":"default-namespace"})[0].textContent
+console.log(title);
+`````
+-->
+    
+    Harry Potter
 	
 ## Attributes
 `````javascript  

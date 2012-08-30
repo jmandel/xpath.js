@@ -2205,7 +2205,7 @@ NodeTest.prototype.matches = function(n, xpc) {
 			if (n.nodeType == 2 /*Node.ATTRIBUTE_NODE*/
 					|| n.nodeType == 1 /*Node.ELEMENT_NODE*/
 					|| n.nodeType == XPathNamespace.XPATH_NAMESPACE_NODE) {
-				var test = Utilities.resolveQName(this.value, xpc.namespaceResolver, xpc.expressionContextNode, false);
+				var test = Utilities.resolveQName(this.value, xpc.namespaceResolver.query, xpc.expressionContextNode, false);
 				if (test[0] == null) {
 					throw new Error("Cannot resolve QName " + this.value);
 				}
@@ -3272,6 +3272,20 @@ NamespaceResolver.prototype.getNamespace = function(prefix, n) {
 	return null;
 };
 
+// QueryNamespaceResolver /////////////////////////////////////////////////////////
+
+QueryNamespaceResolver.prototype = new NamespaceResolver();
+QueryNamespaceResolver.prototype.constructor = QueryNamespaceResolver;
+QueryNamespaceResolver.superclass = NamespaceResolver;
+
+function QueryNamespaceResolver(namespaces) {
+  this.query = {
+    "getNamespace": function(prefix){
+      return namespaces[prefix];
+    }
+  };
+}
+
 // Functions /////////////////////////////////////////////////////////////////
 
 Functions = new Object();
@@ -4276,17 +4290,20 @@ try {
 }
 
 
-function SelectNodes(doc, xpath)
+function SelectNodes(doc, xpath, namespaces)
 {
 	var parser = new XPathParser();
 	var xpath = parser.parse(xpath);
-	var context = new XPathContext();
+
+	var context = new XPathContext(null, new QueryNamespaceResolver(namespaces), null);
+
 	if(doc.documentElement){
 		context.expressionContextNode = doc.documentElement;
 	} else {
 		context.expressionContextNode = doc;
 	}
 	var res = xpath.evaluate(context)
+
 	return res.toArray();
 }
 

@@ -38,4 +38,28 @@ module.exports = {
     assert.equal("J. K. Rowling", author) 
     test.done()
   },
+
+  "get prefixed text node": function (test) {   
+    var xml = "<book xmlns='default-namespace' xmlns:an='another-namespace'><an:title>Harry Potter</an:title></book>";
+    var doc = new dom().parseFromString(xml)    
+    var title = select(doc, "//a:title", {"a":"another-namespace"})[0].textContent
+    assert.equal("Harry Potter", title) 
+    test.done()
+  },
+
+  "get prefixed default text node": function (test) {   
+    var xml = "<book xmlns='default-namespace'><title>Harry Potter</title></book>";
+    var doc = new dom().parseFromString(xml)    
+    var title = select(doc, "/d:book/d:title", {"d":"default-namespace"})[0].textContent
+    assert.equal("Harry Potter", title) 
+    test.done()
+  },
+
+  "don't get node without default prefix": function (test) {   
+    var xml = "<book xmlns='default-namespace' xmlns:an='another-namespace'><title>Harry Potter</title></book>";
+    var doc = new dom().parseFromString(xml)    
+    var title = select(doc, "/book/title")
+    assert.equal(0, title.length) 
+    test.done()
+  },
 }
